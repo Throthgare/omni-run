@@ -16,6 +16,7 @@ from unittest.mock import patch, MagicMock
 from datetime import datetime
 
 from conftest import *
+import omni_run
 
 
 class TestSynchronousExecution:

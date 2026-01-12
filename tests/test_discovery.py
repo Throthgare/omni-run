@@ -357,8 +357,9 @@ class TestInvalidFiles:
     
     def test_binary_content_file(self, temp_dir, omni_runner):
         """Test that files with binary content are handled."""
-        script = temp_dir / "data.bin"
+        script = temp_dir / "data"
         script.write_bytes(b'\x00\x01\x02\x03\x04\x05')
+        os.chmod(script, 0o755)  # Make it executable
         
         programs = omni_runner.scan_for_executables()
         
@@ -380,8 +381,19 @@ class TestConfigAffectsScanning:
             depth = len(prog.path.relative_to(omni_runner_with_config.base_path).parts) - 1
             assert depth <= 5
     
-    def test_custom_exclude_dirs(self, temp_dir, omni_runner_with_config):
+    def test_custom_exclude_dirs(self, temp_dir, omni_runner):
         """Test that custom exclude directories are respected."""
+        # Create config file to exclude custom_exclude directory
+        config_file = temp_dir / ".omnirun.yaml"
+        config_file.write_text("""
+exclude_dirs:
+  - custom_exclude
+""")
+        
+        # Create OmniRun with config
+        from omni_run import OmniRun
+        runner = OmniRun(str(temp_dir), config_file=str(config_file))
+        
         # Create files in root and excluded dirs
         (temp_dir / "main.py").write_text('print("main")\n')
         
@@ -389,7 +401,7 @@ class TestConfigAffectsScanning:
         custom_dir.mkdir()
         (custom_dir / "excluded.py").write_text('print("excluded")\n')
         
-        programs = omni_runner_with_config.scan_for_executables()
+        programs = runner.scan_for_executables()
         
         # main.py should be found
         assert any(p.name == "main.py" for p in programs)

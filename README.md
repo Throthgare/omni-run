@@ -1,6 +1,6 @@
 # OmniRun v3.0
 
-🚀 **Ultimate Multi-Platform Executable Discovery and Management System**
+**Ultimate Multi-Platform Executable Discovery and Management System**
 
 [![PyPI version](https://badge.fury.io/py/omni-run.svg)](https://pypi.org/project/omni-run/)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
@@ -8,41 +8,41 @@
 
 OmniRun is an intelligent tool that automatically discovers, analyzes, and executes programs across multiple programming languages and frameworks. It features auto-dependency fixing, environment detection, and advanced execution modes.
 
-## ✨ Features
+## Features
 
-### 🔍 Smart Discovery
+### Smart Discovery
 - **Multi-language support**: Python, JavaScript, TypeScript, Go, Rust, Java, C#, Ruby, PHP, Swift, Kotlin, Scala, R, Julia, Perl, Lua, Haskell, Elixir, Clojure, Dart
 - **Framework detection**: Django, Flask, FastAPI, React, Next.js, Vue.js, Angular, Gin, Echo, Actix, Rocket, Rails, Laravel, Spring Boot, Quarkus, Micronaut, and more
 - **Entrypoint ranking**: Intelligent scoring system to identify main executable files
 - **Environment awareness**: Detects venv, conda, Docker, and docker-compose setups
 
-### 🔧 Auto-Fix & Safety
+### Auto-Fix & Safety
 - **Dependency auto-fixing**: Automatically installs missing dependencies with beautiful command preview
 - **Dry-run mode**: Preview changes without execution (`--dry-run`)
 - **Backup & rollback**: Automatic git stash or file backup with rollback on failure
 - **Confirmation prompts**: Optional per-command confirmation with `--yes`/`--no-confirm` flags
 - **Safe defaults**: Prefer user-scoped installations and isolated environments
 
-### 🚀 One-Click Execution
+### One-Click Execution
 - **Run with arguments**: Pass command-line arguments to programs
 - **Watch mode**: Auto-restart on file changes (requires watchdog) (`--watch`)
 - **Profile mode**: Performance profiling with cProfile (`--profile`)
 - **Preferred commands**: Store and recall frequently used commands per project
 
-### 🎯 Advanced Task Runner Support
+### Advanced Task Runner Support
 - **Multiple task runners**: Makefile, Justfile, npm scripts, Cargo tasks, Gradle, Maven
 - **Task descriptions**: Parse comments from Makefiles and Justfiles
 - **Framework commands**: Auto-detect dev, build, test, and production commands
 - **Best command selection**: Automatically choose development vs production commands
 
-### 📊 Rich Reporting & UX
+### Rich Reporting & UX
 - **Beautiful HTML reports**: Interactive reports with Tailwind CSS, copy-to-clipboard, and collapsible sections
 - **JSON reports**: Machine-readable output for CI/CD integration
-- **Real-time progress**: Live execution feedback with emojis and status indicators
+- **Real-time progress**: Live execution feedback with status indicators
 - **Interactive mode**: Enhanced CLI with command history and smart suggestions
 - **Rich TUI mode**: Beautiful terminal interface with `--tui` flag
 
-### 🐳 Container & Environment Support
+### Container & Environment Support
 - **Docker detection**: Offers `docker build` and `docker run` commands
 - **Docker Compose**: Suggests `docker-compose up` as primary command
 - **Virtual environments**: Detects and suggests venv, conda, and pipenv
@@ -230,10 +230,10 @@ Execute these 1 commands? [y/N]: y
 - **File backup**: Copies dependency files to temp directory
 - **Auto-rollback**: Restores state on failure
 
-## 🎬 Demo
+## Demo
 
 ### Auto-Fix Workflow Demo
-Watch Smart Launcher in action:
+Watch OmniRun in action:
 
 1. **Discovery**: Scans project and identifies programs with missing dependencies
 2. **Safety Preview**: Shows beautiful command preview with backup/rollback options
@@ -244,10 +244,10 @@ Watch Smart Launcher in action:
 **Demo Video**: [Watch on YouTube](https://youtube.com/watch?v=demo-link) | **Demo GIF**: [View GIF](demo.gif)
 
 ### Key Demo Highlights
-- ⚡ **Lightning Fast**: Discovers and analyzes projects in seconds
-- 🔒 **Safe by Default**: Backup creation and rollback on failure
-- 🎨 **Beautiful UI**: Rich terminal output with emojis and progress bars
-- 🚀 **One-Click Fix**: Auto-resolves common dependency issues
+- **Lightning Fast**: Discovers and analyzes projects in seconds
+- **Safe by Default**: Backup creation and rollback on failure
+- **Beautiful UI**: Rich terminal output with progress bars
+- **One-Click Fix**: Auto-resolves common dependency issues
 - 📊 **Rich Reports**: Generates interactive HTML reports with Tailwind CSS
 
 ## 🚀 Real-World Usage

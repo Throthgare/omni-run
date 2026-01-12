@@ -1,8 +1,8 @@
-# Smart Launcher Examples
+# OmniRun Examples
 
-This directory contains example projects demonstrating Smart Launcher's capabilities across different languages and frameworks.
+This directory contains example projects demonstrating OmniRun's capabilities across different languages and frameworks.
 
-## 📁 Examples Overview
+## Examples Overview
 
 ### 1. Flask App (`flask_app/`)
 A simple Python Flask web application.
@@ -14,7 +14,7 @@ A simple Python Flask web application.
 **Try it:**
 ```bash
 cd examples/flask_app
-python ../../smart_launcher.py
+python ../../omni_run.py
 # Select option 1 to run the Flask app
 ```
 
@@ -28,8 +28,8 @@ An Express.js web server.
 **Try it:**
 ```bash
 cd examples/node_app
-python ../../smart_launcher.py
-# Smart Launcher will detect missing dependencies and offer to install them
+python ../../omni_run.py
+# OmniRun will detect missing dependencies and offer to install them
 ```
 
 ### 3. Go App (`go_app/`)
@@ -42,43 +42,43 @@ A basic Go HTTP server.
 **Try it:**
 ```bash
 cd examples/go_app
-python ../../smart_launcher.py
+python ../../omni_run.py
 # Select option 1 to run the Go server
 ```
 
-## 🚀 Usage Examples
+## Usage Examples
 
 ### Basic Discovery
 ```bash
 # Scan current directory
-python smart_launcher.py
+python omni_run.py
 
 # Scan specific directory
-python smart_launcher.py /path/to/project
+python omni_run.py /path/to/project
 
 # Generate HTML report
-python smart_launcher.py examples/flask_app --html flask_report.html
+python omni_run.py examples/flask_app --html flask_report.html
 ```
 
 ### Auto-Fix Dependencies
 ```bash
 # Interactive auto-fix
-python smart_launcher.py examples/node_app --auto-fix
+python omni_run.py examples/node_app --auto-fix
 
 # Dry-run mode (see what would happen)
-python smart_launcher.py examples/node_app --dry-run
+python omni_run.py examples/node_app --dry-run
 ```
 
 ### Advanced Execution Modes
 ```bash
 # Run with arguments
-python smart_launcher.py examples/flask_app --args --port 8080 --debug
+python omni_run.py examples/flask_app --args --port 8080 --debug
 
 # Watch mode (auto-restart on changes)
-python smart_launcher.py examples/flask_app --watch
+python omni_run.py examples/flask_app --watch
 
 # Profile mode (performance analysis)
-python smart_launcher.py examples/flask_app --profile
+python omni_run.py examples/flask_app --profile
 ```
 
 ### Interactive Mode Commands
@@ -98,10 +98,10 @@ Available Commands:
   q                     - Quit
 ```
 
-## 🔧 Configuration Examples
+## Configuration Examples
 
 ### Project-Specific Config
-Create a `.smartlauncher.yaml` in your project:
+Create a `.omnirun.yaml` in your project:
 
 ```yaml
 auto_fix: true
@@ -114,7 +114,7 @@ exclude_dirs:
 ```
 
 ### Global Config
-Create `~/.smartlauncher.yaml`:
+Create `~/.omnirun.yaml`:
 
 ```yaml
 auto_fix: false
@@ -125,16 +125,16 @@ preferred_commands:
   node: "npm test"
 ```
 
-## 🎯 Framework Detection
+## Framework Detection
 
-Smart Launcher automatically detects:
+OmniRun automatically detects:
 
 - **Python**: Django (`manage.py`), Flask (`app.py`), FastAPI (`main.py`)
 - **JavaScript**: React (`package.json` with react), Next.js (`next` in deps)
 - **Go**: Gin/Echo (`main.go` with framework imports)
 - **And many more...**
 
-## 🐳 Container Examples
+## Container Examples
 
 ### Docker Setup
 ```dockerfile
@@ -158,14 +158,14 @@ services:
       - FLASK_ENV=development
 ```
 
-Smart Launcher will detect these files and suggest appropriate commands.
+OmniRun will detect these files and suggest appropriate commands.
 
-## 🔒 Safety Features Demo
+## Safety Features Demo
 
 ### Backup & Rollback
 ```bash
-# Smart Launcher creates backups before making changes
-python smart_launcher.py examples/node_app --auto-fix
+# OmniRun creates backups before making changes
+python omni_run.py examples/node_app --auto-fix
 
 # If something goes wrong, it can rollback automatically
 ```
@@ -173,36 +173,36 @@ python smart_launcher.py examples/node_app --auto-fix
 ### Confirmation Prompts
 ```bash
 # Enable confirmation for each command
-echo "confirm_each_command: true" > ~/.smartlauncher.yaml
-python smart_launcher.py examples/node_app --auto-fix
+echo "confirm_each_command: true" > ~/.omnirun.yaml
+python omni_run.py examples/node_app --auto-fix
 ```
 
-## 📊 Report Generation
+## Report Generation
 
 ### HTML Report
 ```bash
-python smart_launcher.py examples --html examples_report.html
+python omni_run.py examples --html examples_report.html
 # Open examples_report.html in your browser
 ```
 
 ### JSON Report (for CI/CD)
 ```bash
-python smart_launcher.py examples --json examples_report.json
+python omni_run.py examples --json examples_report.json
 # Parse with jq or your CI system
 ```
 
-## 🚀 Real-World Usage
+## Real-World Usage
 
 ### Development Workflow
-1. **Discover**: `python smart_launcher.py` to see all runnable programs
+1. **Discover**: `python omni_run.py` to see all runnable programs
 2. **Fix**: `f 1` to auto-fix dependencies for the first program
 3. **Run**: `1` to execute the program
 4. **Watch**: `w 1` for development with auto-restart
 
 ### CI/CD Integration
 ```yaml
-# .github/workflows/smart-launcher.yml
-name: Smart Launcher Check
+# .github/workflows/omnirun.yml
+name: OmniRun Check
 on: [push, pull_request]
 jobs:
   check:
@@ -213,7 +213,7 @@ jobs:
         with:
           python-version: '3.9'
       - run: pip install -r requirements.txt
-      - run: python smart_launcher.py --json report.json
+      - run: python omni_run.py --json report.json
       - run: |
           # Parse report and check for issues
           python -c "
@@ -227,7 +227,7 @@ jobs:
           "
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -250,12 +250,12 @@ jobs:
 
 ### Debug Mode
 ```bash
-python smart_launcher.py --verbose --max-depth 10
+python omni_run.py --verbose --max-depth 10
 ```
 
-## 🎉 Next Steps
+## Next Steps
 
-- Explore the main Smart Launcher features
+- Explore the main OmniRun features
 - Try creating your own example projects
 - Check the [README.md](../README.md) for complete documentation
 - Contribute new language/framework support!</content>

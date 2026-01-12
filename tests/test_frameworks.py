@@ -364,7 +364,7 @@ class TestFrameworkVersion:
         assert nextjs_prog is not None
         assert nextjs_prog.framework.version is not None
         # Version should be something like ^13.0.0
-        assert nextjs_prog.framework.version.startswith("13")
+        assert nextjs_prog.framework.version.startswith("^13")
 
 
 class TestMultipleFrameworks:

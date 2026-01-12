@@ -31,6 +31,27 @@ import re
 import argparse
 import hashlib
 
+# Optional imports
+try:
+    from rich.console import Console
+    from rich.table import Table
+    from rich.panel import Panel
+    from rich.text import Text
+    from rich.prompt import Prompt, Confirm
+    from rich.live import Live
+    from rich.spinner import Spinner
+    from rich.columns import Columns
+    RICH_AVAILABLE = True
+except ImportError:
+    RICH_AVAILABLE = False
+
+try:
+    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler
+    WATCHDOG_AVAILABLE = True
+except ImportError:
+    WATCHDOG_AVAILABLE = False
+
 # Color codes for terminal output
 class Colors:
     HEADER = '\033[95m'
@@ -120,7 +141,7 @@ class ExecutionResult:
     return_code: Optional[int]
     stdout: str
     stderr: str
-    error_message: Optional[str]
+    error_message: Optional[str] = None
     args: List[str] = field(default_factory=list)
     environment_vars: Dict[str, str] = field(default_factory=dict)
 
@@ -184,6 +205,20 @@ class OmniRun:
                 'dependency_managers': ['maven', 'gradle'],
                 'frameworks': ['Spring', 'Quarkus', 'Micronaut']
             },
+            'C++': {
+                'extensions': ['.cpp', '.cc', '.cxx', '.c++'],
+                'interpreters': ['g++', 'clang++'],
+                'config_files': ['Makefile', 'CMakeLists.txt'],
+                'dependency_managers': ['make', 'cmake'],
+                'frameworks': []
+            },
+            'C': {
+                'extensions': ['.c'],
+                'interpreters': ['gcc', 'clang'],
+                'config_files': ['Makefile', 'CMakeLists.txt'],
+                'dependency_managers': ['make', 'cmake'],
+                'frameworks': []
+            },
             'C#': {
                 'extensions': ['.cs'],
                 'interpreters': ['dotnet'],
@@ -192,7 +227,7 @@ class OmniRun:
                 'frameworks': ['ASP.NET', '.NET MAUI', 'Blazor']
             },
             'Ruby': {
-                'extensions': ['.rb'],
+                'extensions': ['.rb', '.ru'],
                 'interpreters': ['ruby'],
                 'config_files': ['Gemfile', 'Gemfile.lock'],
                 'dependency_managers': ['bundler'],
@@ -283,7 +318,7 @@ class OmniRun:
                 'frameworks': ['Flutter', 'Aqueduct']
             },
             'Executable': {
-                'extensions': [],
+                'extensions': ['.sh', '.bash', '.zsh', '.fish', '.ps1', '.bat', '.cmd'],
                 'interpreters': [],
                 'config_files': [],
                 'dependency_managers': [],
@@ -550,10 +585,20 @@ class OmniRun:
                     pass
         
         # Next.js / React detection
-        package_json = path / 'package.json'
-        if package_json.exists():
+        def find_package_json(search_path: Path) -> Optional[Path]:
+            """Find package.json by searching up the directory tree."""
+            current = search_path
+            while current != current.parent:  # Stop at root
+                package_json = current / 'package.json'
+                if package_json.exists():
+                    return package_json
+                current = current.parent
+            return None
+        
+        package_json_path = find_package_json(path)
+        if package_json_path:
             try:
-                with open(package_json, 'r') as f:
+                with open(package_json_path, 'r') as f:
                     data = json.load(f)
                     deps = {**data.get('dependencies', {}), **data.get('devDependencies', {})}
                     
@@ -647,10 +692,20 @@ class OmniRun:
         
         # Spring Boot detection
         if prog_type == 'Java':
-            pom_xml = path / 'pom.xml'
-            if pom_xml.exists():
+            def find_pom_xml(search_path: Path) -> Optional[Path]:
+                """Find pom.xml by searching up the directory tree."""
+                current = search_path
+                while current != current.parent:  # Stop at root
+                    pom_xml = current / 'pom.xml'
+                    if pom_xml.exists():
+                        return pom_xml
+                    current = current.parent
+                return None
+            
+            pom_xml_path = find_pom_xml(path)
+            if pom_xml_path:
                 try:
-                    with open(pom_xml, 'r') as f:
+                    with open(pom_xml_path, 'r') as f:
                         content = f.read()
                         if 'spring-boot' in content:
                             return Framework(
@@ -662,9 +717,10 @@ class OmniRun:
         
         # Quarkus detection
         if prog_type == 'Java':
-            if pom_xml.exists():
+            pom_xml_path = find_pom_xml(path)
+            if pom_xml_path:
                 try:
-                    with open(pom_xml, 'r') as f:
+                    with open(pom_xml_path, 'r') as f:
                         content = f.read()
                         if 'quarkus' in content:
                             return Framework(
@@ -676,9 +732,10 @@ class OmniRun:
         
         # Micronaut detection
         if prog_type == 'Java':
-            if pom_xml.exists():
+            pom_xml_path = find_pom_xml(path)
+            if pom_xml_path:
                 try:
-                    with open(pom_xml, 'r') as f:
+                    with open(pom_xml_path, 'r') as f:
                         content = f.read()
                         if 'micronaut' in content:
                             return Framework(
@@ -737,7 +794,7 @@ class OmniRun:
         if not missing_deps:
             return True
         
-        print(f"\n{Colors.WARNING}🔧 DEPENDENCY AUTO-FIX PROPOSAL{Colors.ENDC}")
+        print(f"\n{Colors.WARNING}[FIX] DEPENDENCY AUTO-FIX PROPOSAL{Colors.ENDC}")
         print(f"{Colors.BOLD}{'='*60}{Colors.ENDC}")
         print(f"Program: {prog.name}")
         print(f"Location: {prog.relative_path}")
@@ -746,9 +803,9 @@ class OmniRun:
         print(f"{Colors.BOLD}{'='*60}{Colors.ENDC}\n")
         
         # Show proposed command list
-        print(f"{Colors.OKCYAN}📋 PROPOSED COMMANDS:{Colors.ENDC}")
+        print(f"{Colors.OKCYAN}[COPY] PROPOSED COMMANDS:{Colors.ENDC}")
         for i, dep in enumerate(missing_deps, 1):
-            status = "🔧 Auto-fixable" if dep.can_auto_fix else "❌ Manual required"
+            status = "[FIX] Auto-fixable" if dep.can_auto_fix else "[FAIL] Manual required"
             print(f"  {i}. {Colors.BOLD}{dep.name}{Colors.ENDC} - {status}")
             if dep.fix_command:
                 print(f"     Command: {Colors.OKBLUE}{dep.fix_command}{Colors.ENDC}")
@@ -773,7 +830,7 @@ class OmniRun:
             confirm = response == 'y'
         
         if not confirm:
-            print(f"{Colors.WARNING}❌ Auto-fix cancelled by user{Colors.ENDC}")
+            print(f"{Colors.WARNING}[FAIL] Auto-fix cancelled by user{Colors.ENDC}")
             return False
         
         # Create backup if enabled
@@ -826,10 +883,10 @@ class OmniRun:
                     executed_commands.append((dep.fix_command, result.returncode, result.stdout, result.stderr))
                     
                     if result.returncode == 0:
-                        print(f"{Colors.OKGREEN}  ✅ Fixed: {dep.name}{Colors.ENDC}")
+                        print(f"{Colors.OKGREEN}  [OK] Fixed: {dep.name}{Colors.ENDC}")
                         dep.available = True
                     else:
-                        print(f"{Colors.FAIL}  ❌ Failed: {dep.name}{Colors.ENDC}")
+                        print(f"{Colors.FAIL}  [FAIL] Failed: {dep.name}{Colors.ENDC}")
                         if result.stderr:
                             print(f"     Error: {result.stderr.strip()}")
                         all_success = False
@@ -846,7 +903,7 @@ class OmniRun:
         if all_success:
             print(f"{Colors.OKGREEN}🎉 ALL DEPENDENCIES FIXED SUCCESSFULLY!{Colors.ENDC}")
         else:
-            print(f"{Colors.WARNING}⚠️  SOME DEPENDENCIES COULD NOT BE FIXED{Colors.ENDC}")
+            print(f"{Colors.WARNING}[WARN]  SOME DEPENDENCIES COULD NOT BE FIXED{Colors.ENDC}")
             print(f"     {Colors.OKCYAN}Check error messages above for details{Colors.ENDC}")
         print(f"{Colors.BOLD}{'='*60}{Colors.ENDC}\n")
         
@@ -856,9 +913,9 @@ class OmniRun:
             self._rollback_backup(prog.path.parent)
         
         if all_success:
-            print(f"\n{Colors.OKGREEN}✅ All dependencies fixed!{Colors.ENDC}\n")
+            print(f"\n{Colors.OKGREEN}[OK] All dependencies fixed!{Colors.ENDC}\n")
         else:
-            print(f"\n{Colors.WARNING}⚠️  Some dependencies could not be fixed{Colors.ENDC}\n")
+            print(f"\n{Colors.WARNING}[WARN]  Some dependencies could not be fixed{Colors.ENDC}\n")
         
         return all_success
     
@@ -951,10 +1008,7 @@ class OmniRun:
     
     def run_with_watch_mode(self, prog: ExecutableProgram, args: List[str] = None) -> None:
         """Run program with file watching for auto-restart."""
-        try:
-            from watchdog.observers import Observer
-            from watchdog.events import FileSystemEventHandler
-        except ImportError:
+        if not WATCHDOG_AVAILABLE:
             print(f"{Colors.FAIL}watchdog package required for watch mode. Install with: pip install watchdog{Colors.ENDC}")
             return
         
@@ -1105,6 +1159,9 @@ class OmniRun:
             command_used = f"{' '.join(cmd)} {' '.join(args) if args else ''}".strip()
             self.save_preferred_command(prog, command_used)
             
+            # Add to execution history
+            self.execution_history.append(execution_result)
+            
             return execution_result
             
         except subprocess.TimeoutExpired:
@@ -1218,7 +1275,7 @@ class OmniRun:
                         name="node_modules",
                         required=True,
                         available=False,
-                        message=f"Dependencies NOT installed",
+                        message=f"node_modules NOT installed",
                         fix_command=f"cd {work_dir} && {install_cmd}",
                         can_auto_fix=True
                     ))
@@ -1383,31 +1440,48 @@ class OmniRun:
                         for prog_type, config in self.executable_patterns.items():
                             extensions = config['extensions']
                             
+                            detected_type = prog_type
+                            
+                            # Special handling for files without extensions
+                            if not item.suffix:
+                                if prog_type == 'Executable':
+                                    # For executable files without extension, check if they're actually scripts
+                                    try:
+                                        with open(item, 'r', encoding='utf-8', errors='ignore') as f:
+                                            first_line = f.readline().strip()
+                                            if first_line.startswith('#!/usr/bin/env php') or first_line.startswith('#!/usr/bin/php'):
+                                                detected_type = 'PHP'
+                                            elif first_line.startswith('#!/usr/bin/env ruby') or first_line.startswith('#!/usr/bin/ruby'):
+                                                detected_type = 'Ruby'
+                                            elif first_line.startswith('#!/usr/bin/env python') or first_line.startswith('#!/usr/bin/python'):
+                                                detected_type = 'Python'
+                                            elif first_line.startswith('#!/usr/bin/env node') or first_line.startswith('#!/usr/bin/node'):
+                                                detected_type = 'JavaScript'
+                                    except:
+                                        pass
+                            
                             if item.suffix.lower() in extensions or (not item.suffix and prog_type == 'Executable'):
-                                if prog_type == 'Executable' and item.suffix:
-                                    continue
                                 if prog_type == 'Executable' and not os.access(item, os.X_OK) and self.system != 'Windows':
                                     continue
                                 
+                                # Use detected type for processing
+                                actual_type = detected_type if not item.suffix and prog_type == 'Executable' else prog_type
+                                
                                 self.log(f"Analyzing {item.name}", "INFO")
                                 
-                                dependencies = self.check_dependencies(item, prog_type)
-                                required_interpreters = [d for d in dependencies if d.required and d.name in config.get('interpreters', [])]
-                                if required_interpreters and not any(d.available for d in required_interpreters):
-                                    self.log(f"Skipping {item.name} - no interpreter available", "WARNING")
-                                    continue
+                                dependencies = self.check_dependencies(item, actual_type)
                                 
                                 score = self.is_likely_main_file(item)
-                                config_files = self.get_config_files(item, prog_type)
+                                config_files = self.get_config_files(item, actual_type)
                                 complexity = self.estimate_complexity(item)
-                                framework = self.detect_framework(item.parent, prog_type)
+                                framework = self.detect_framework(item.parent, actual_type)
                                 
                                 executable = ExecutableProgram(
                                     path=item,
                                     name=item.name,
                                     relative_path=str(item.relative_to(self.base_path)),
-                                    type=prog_type,
-                                    interpreters=config.get('interpreters', []),
+                                    type=actual_type,
+                                    interpreters=self.executable_patterns.get(actual_type, {}).get('interpreters', []),
                                     score=score,
                                     dependencies=dependencies,
                                     has_config=len(config_files) > 0,
@@ -1522,9 +1596,18 @@ class OmniRun:
         config_files = []
         config = self.executable_patterns.get(prog_type, {})
         
+        def find_config_file(search_path: Path, config_file: str) -> bool:
+            """Find config file by searching up the directory tree."""
+            current = search_path
+            while current != current.parent:  # Stop at root
+                config_path = current / config_file
+                if config_path.exists():
+                    return True
+                current = current.parent
+            return False
+        
         for config_file in config.get('config_files', []):
-            config_path = filepath.parent / config_file
-            if config_path.exists():
+            if find_config_file(filepath.parent, config_file):
                 config_files.append(config_file)
         
         return config_files
@@ -1594,7 +1677,7 @@ class OmniRun:
                 print(f"   ⚙️  Task Runners: {runners}")
             
             if fixable_deps:
-                print(f"   {Colors.OKCYAN}🔧 Can auto-fix dependencies{Colors.ENDC}")
+                print(f"   {Colors.OKCYAN}[FIX] Can auto-fix dependencies{Colors.ENDC}")
             
             print()
     
@@ -1696,7 +1779,7 @@ class OmniRun:
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                 <div class="bg-success bg-opacity-10 border border-success rounded-lg p-4">
                     <div class="flex items-center">
-                        <div class="text-success text-2xl">✅</div>
+                        <div class="text-success text-2xl">[OK]</div>
                         <div class="ml-3">
                             <div class="text-xl font-bold text-success">{ready_count}</div>
                             <div class="text-sm text-success">Ready to Run</div>
@@ -1705,7 +1788,7 @@ class OmniRun:
                 </div>
                 <div class="bg-error bg-opacity-10 border border-error rounded-lg p-4">
                     <div class="flex items-center">
-                        <div class="text-error text-2xl">⚠️</div>
+                        <div class="text-error text-2xl">[WARN]</div>
                         <div class="ml-3">
                             <div class="text-xl font-bold text-error">{issues_count}</div>
                             <div class="text-sm text-error">Need Attention</div>
@@ -1731,7 +1814,7 @@ class OmniRun:
         for idx, prog in enumerate(self.discovered_programs, 1):
             missing = [d for d in prog.dependencies if d.required and not d.available]
             css_class = "border-error" if missing else "border-success"
-            status_icon = "❌" if missing else "✅"
+            status_icon = "[FAIL]" if missing else "[OK]"
             status_text = "Issues" if missing else "Ready"
             status_color = "text-error" if missing else "text-success"
             
@@ -1787,7 +1870,7 @@ class OmniRun:
 """
             
             for dep in prog.dependencies:
-                status_icon_dep = "✅" if dep.available else "❌"
+                status_icon_dep = "[OK]" if dep.available else "[FAIL]"
                 status_color_dep = "text-success" if dep.available else "text-error"
                 bg_color = "bg-success" if dep.available else "bg-error"
                 
@@ -1805,7 +1888,7 @@ class OmniRun:
                 if dep.fix_command:
                     html += f"""
                                     <button onclick="copyToClipboard('{dep.fix_command}')" class="copy-btn bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm flex items-center space-x-1">
-                                        <span>📋</span>
+                                        <span>[COPY]</span>
                                         <span>Copy</span>
                                     </button>
 """
@@ -1845,7 +1928,7 @@ class OmniRun:
                                         <div class="flex items-center justify-between">
                                             <code class="bg-gray-200 px-2 py-1 rounded text-sm">{task}</code>
                                             <button onclick="copyToClipboard('{tr.type} {task}')" class="copy-btn bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs">
-                                                📋
+                                                [COPY]
                                             </button>
                                         </div>
 """
@@ -1885,11 +1968,13 @@ class OmniRun:
 </body>
 </html>"""
         
+        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
+        
         with open(output_file, 'w') as f:
             f.write(html)
         
-        print(f"{Colors.OKGREEN}✨ Beautiful HTML report saved to: {output_file}{Colors.ENDC}")
-        print(f"{Colors.OKCYAN}💡 Tip: Open in browser and click 📋 buttons to copy commands{Colors.ENDC}")
+        print(f"{Colors.OKGREEN}[SUCCESS] Beautiful HTML report saved to: {output_file}{Colors.ENDC}")
+        print(f"{Colors.OKCYAN}[INFO] Tip: Open in browser and click [COPY] buttons to copy commands{Colors.ENDC}")
     
     def show_environment_activation_hints(self):
         """Show environment activation commands for detected environments."""
@@ -1998,6 +2083,8 @@ class OmniRun:
             
             report['programs'].append(prog_data)
         
+        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
+        
         with open(output_file, 'w') as f:
             json.dump(report, f, indent=2)
         
@@ -2041,16 +2128,7 @@ class OmniRun:
     
     def run_tui_mode(self):
         """Run rich TUI interface for enhanced user experience."""
-        try:
-            from rich.console import Console
-            from rich.table import Table
-            from rich.panel import Panel
-            from rich.text import Text
-            from rich.prompt import Prompt, Confirm
-            from rich.live import Live
-            from rich.spinner import Spinner
-            from rich.columns import Columns
-        except ImportError:
+        if not RICH_AVAILABLE:
             print(f"{Colors.FAIL}Rich library required for TUI mode. Install with: pip install rich{Colors.ENDC}")
             return
         
@@ -2079,7 +2157,7 @@ class OmniRun:
         
         for idx, prog in enumerate(self.discovered_programs, 1):
             missing = [d for d in prog.dependencies if d.required and not d.available]
-            status = "⚠️ Issues" if missing else "✅ Ready"
+            status = "[WARN] Issues" if missing else "[OK] Ready"
             framework = prog.framework.name if prog.framework else "None"
             
             table.add_row(str(idx), prog.name, prog.type, status, framework)
@@ -2164,7 +2242,7 @@ class OmniRun:
             dep_table.add_column("Required", style="yellow")
             
             for dep in prog.dependencies:
-                status = "✅ Available" if dep.available else "❌ Missing"
+                status = "[OK] Available" if dep.available else "[FAIL] Missing"
                 required = "Yes" if dep.required else "No"
                 dep_table.add_row(dep.name, status, required)
             
@@ -2194,9 +2272,9 @@ class OmniRun:
                 success = self.auto_fix_dependencies(prog, interactive=False)
             
             if success:
-                console.print("[green]✅ All dependencies fixed successfully![/green]")
+                console.print("[green][OK] All dependencies fixed successfully![/green]")
             else:
-                console.print("[red]❌ Some dependencies could not be fixed.[/red]")
+                console.print("[red][FAIL] Some dependencies could not be fixed.[/red]")
     
     def _execute_program_tui(self, console, prog):
         """Execute program in TUI mode."""
@@ -2207,9 +2285,9 @@ class OmniRun:
             result = self.execute_program_synchronously(prog, args_list)
         
         if result.return_code == 0:
-            console.print(f"[green]✅ Program executed successfully in {result.duration:.2f}s[/green]")
+            console.print(f"[green][OK] Program executed successfully in {result.duration:.2f}s[/green]")
         else:
-            console.print(f"[red]❌ Program failed with code {result.return_code} in {result.duration:.2f}s[/red]")
+            console.print(f"[red][FAIL] Program failed with code {result.return_code} in {result.duration:.2f}s[/red]")
         
         if result.stdout:
             console.print(Panel(result.stdout, title="Output", border_style="blue"))
@@ -2383,7 +2461,7 @@ class OmniRun:
         if prog.dependencies:
             print(f"\n{Colors.OKCYAN}Dependencies:{Colors.ENDC}")
             for dep in prog.dependencies:
-                status = "✅" if dep.available else "❌"
+                status = "[OK]" if dep.available else "[FAIL]"
                 required = "(required)" if dep.required else "(optional)"
                 print(f"  {status} {dep.name} {required}")
                 if dep.fix_command and not dep.available:

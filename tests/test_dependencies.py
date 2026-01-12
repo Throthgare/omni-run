@@ -22,8 +22,8 @@ class TestInterpreterAvailability:
     
     def test_python_available(self, omni_runner):
         """Test Python interpreter availability check."""
-        available, version = omni_runner.check_interpreter_available("python")
-        
+        available, version = omni_runner.check_interpreter_available("python3")
+
         # Python should be available in the test environment
         assert available is True
         assert version is not None
