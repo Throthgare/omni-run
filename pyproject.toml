@@ -7,7 +7,8 @@ name = "omni-run"
 version = "3.0.0"
 description = "Ultimate Multi-Platform Executable Discovery and Management System"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
+requires-python = ">=3.8"
 authors = [
     {name = "The Aetherial Team", email = "realmselection@gmail.com"}
 ]
@@ -25,7 +26,6 @@ keywords = [
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
