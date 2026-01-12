@@ -1,0 +1,10 @@
+include README.md
+include LICENSE
+include requirements.txt
+include examples/*/app.py
+include examples/*/server.js
+include examples/*/main.go
+include examples/*/package.json
+include examples/*/requirements.txt
+include examples/*/go.mod
+recursive-include examples * --exclude *.pyc __pycache__
