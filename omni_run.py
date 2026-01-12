@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Smart Launcher v3.0 - Ultimate Multi-Platform Executable Discovery and Management System
+OmniRun v3.0 - Ultimate Multi-Platform Executable Discovery and Management System
 Author: The Aetherial Team
 Version: 3.0
 
@@ -124,8 +124,8 @@ class ExecutionResult:
     args: List[str] = field(default_factory=list)
     environment_vars: Dict[str, str] = field(default_factory=dict)
 
-class SmartLauncher:
-    """Enhanced Smart Launcher with auto-fix and advanced features."""
+class OmniRun:
+    """Enhanced OmniRun with auto-fix and advanced features."""
     
     def __init__(self, base_path: str = ".", verbose: bool = False, config_file: Optional[str] = None):
         self.base_path = Path(base_path).resolve()
@@ -2499,7 +2499,7 @@ class SmartLauncher:
 def main():
     """Main entry point with enhanced argument parsing."""
     parser = argparse.ArgumentParser(
-        description="Smart Launcher v3.0 - Ultimate Multi-Platform Executable Discovery System",
+        description="OmniRun v3.0 - Ultimate Multi-Platform Executable Discovery System",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     
@@ -2524,7 +2524,7 @@ def main():
     args = parser.parse_args()
     
     try:
-        launcher = SmartLauncher(args.path, verbose=args.verbose, config_file=args.config)
+        launcher = OmniRun(args.path, verbose=args.verbose, config_file=args.config)
         
         if args.auto_fix:
             launcher.config['auto_fix'] = True

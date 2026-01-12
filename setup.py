@@ -14,14 +14,14 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name="smart-launcher",
+    name="omni-run",
     version="3.0.0",
     author="Throthgare",
     author_email="realmselection@gmail.com",
     description="Ultimate Multi-Platform Executable Discovery and Management System",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/Throthgare/smart-launcher",
+    url="https://github.com/Throthgare/omni-run",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -61,16 +61,16 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "smart-launcher=smart_launcher:main",
-            "sl=smart_launcher:main",  # Short alias
+            "omni-run=omni_run:main",
+            "or=omni_run:main",  # Short alias
         ],
     },
     include_package_data=True,
     zip_safe=False,
     project_urls={
-        "Bug Reports": "https://github.com/Throthgare/smart-launcher/issues",
-        "Source": "https://github.com/Throthgare/smart-launcher",
-        "Documentation": "https://github.com/Throthgare/smart-launcher#readme",
-        "PyPI": "https://pypi.org/project/smart-launcher/",
+        "Bug Reports": "https://github.com/Throthgare/omni-run/issues",
+        "Source": "https://github.com/Throthgare/omni-run",
+        "Documentation": "https://github.com/Throthgare/omni-run#readme",
+        "PyPI": "https://pypi.org/project/omni-run/",
     },
 )

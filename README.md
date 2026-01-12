@@ -1,12 +1,12 @@
-# Smart Launcher v3.0
+# OmniRun v3.0
 
 🚀 **Ultimate Multi-Platform Executable Discovery and Management System**
 
-[![PyPI version](https://badge.fury.io/py/smart-launcher.svg)](https://pypi.org/project/smart-launcher/)
+[![PyPI version](https://badge.fury.io/py/omni-run.svg)](https://pypi.org/project/omni-run/)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/Throthgare/smart-launcher/blob/main/LICENSE)
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/Throthgare/omni-run/blob/main/LICENSE)
 
-Smart Launcher is an intelligent tool that automatically discovers, analyzes, and executes programs across multiple programming languages and frameworks. It features auto-dependency fixing, environment detection, and advanced execution modes.
+OmniRun is an intelligent tool that automatically discovers, analyzes, and executes programs across multiple programming languages and frameworks. It features auto-dependency fixing, environment detection, and advanced execution modes.
 
 ## ✨ Features
 
@@ -52,13 +52,13 @@ Smart Launcher is an intelligent tool that automatically discovers, analyzes, an
 
 ### From PyPI (Recommended)
 ```bash
-pip install smart-launcher
+pip install omni-run
 ```
 
 ### From Source
 ```bash
-git clone https://github.com/Throthgare/smart-launcher.git
-cd smart-launcher
+git clone https://github.com/Throthgare/omni-run.git
+cd omni-run
 pip install -e .
 ```
 
@@ -180,7 +180,7 @@ preferred_commands: {}
 
 ## 🐳 Container Support
 
-Smart Launcher detects containerized setups:
+OmniRun detects containerized setups:
 
 ### Dockerfile Projects
 ```bash
@@ -199,7 +199,7 @@ docker-compose up
 
 ### Auto-Fix with Confirmation
 ```bash
-$ python smart_launcher.py
+$ python omni_run.py
 🔧 DEPENDENCY AUTO-FIX PROPOSAL
 ============================================================
 Program: server.js
@@ -253,7 +253,7 @@ Watch Smart Launcher in action:
 ## 🚀 Real-World Usage
 
 ### Development Workflow
-1. **Discover**: `python smart_launcher.py` scans and shows all programs
+1. **Discover**: `python omni_run.py` scans and shows all programs
 2. **Fix**: `f 1` auto-fixes dependencies with beautiful preview
 3. **Run**: `1` executes the program
 4. **Watch**: `w 1` for development with auto-restart
@@ -261,8 +261,8 @@ Watch Smart Launcher in action:
 
 ### CI/CD Integration
 ```yaml
-# .github/workflows/smart-launcher.yml
-name: Smart Launcher Check
+# .github/workflows/omni-run.yml
+name: OmniRun Check
 on: [push, pull_request]
 jobs:
   check:
@@ -273,7 +273,7 @@ jobs:
         with:
           python-version: '3.9'
       - run: pip install -r requirements.txt
-      - run: python smart_launcher.py --yes --auto-fix --json results.json
+      - run: python omni_run.py --yes --auto-fix --json results.json
       - run: |
           # Parse results and fail if issues found
           python -c "
@@ -333,6 +333,25 @@ elif 'your-framework' in deps:
             'start': 'your start command'
         }
     )
+```
+
+## 🎯 Ready-to-Use Commands
+
+After installation, OmniRun provides these commands:
+
+```bash
+# Install from PyPI
+pip install omni-run
+
+# Use the tool
+omni-run --help                    # Show help
+omni-run --list-commands          # List all available programs
+omni-run --tui                    # Launch beautiful TUI interface
+omni-run --html report.html       # Generate HTML report
+omni-run --json report.json       # Generate JSON report
+omni-run --ask-each               # Ask before each auto-fix
+omni-run --yes                    # Auto-confirm all prompts
+omni-run                         # Interactive mode
 ```
 
 ## 📄 License
