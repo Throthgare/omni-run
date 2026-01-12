@@ -1,0 +1,98 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omni-run"
+version = "3.0.0"
+description = "Ultimate Multi-Platform Executable Discovery and Management System"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "The Aetherial Team", email = "realmselection@gmail.com"}
+]
+keywords = [
+    "development",
+    "launcher",
+    "executable",
+    "discovery",
+    "automation",
+    "dependencies",
+    "framework",
+    "cli",
+    "tool"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Software Distribution",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "PyYAML>=6.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "flake8>=4.0.0",
+    "mypy>=0.950",
+    "twine>=4.0.0",
+    "build>=0.10.0",
+]
+watch = [
+    "watchdog>=2.1.0",
+]
+all = [
+    "watchdog>=2.1.0",
+]
+
+[project.scripts]
+omni-run = "omni_run:main"
+or = "omni_run:main"
+
+[project.urls]
+Homepage = "https://github.com/Throthgare/omni-run"
+Repository = "https://github.com/Throthgare/omni-run"
+Issues = "https://github.com/Throthgare/omni-run/issues"
+Documentation = "https://github.com/Throthgare/omni-run#readme"
+Changelog = "https://github.com/Throthgare/omni-run/blob/main/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["omni_run*"]
+exclude = ["examples*", "test*"]
+
+[tool.setuptools.package-data]
+omni_run = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+

@@ -16,7 +16,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 setup(
     name="omni-run",
     version="3.0.0",
-    author="Throthgare",
+    author="The Aetherial Team",
     author_email="realmselection@gmail.com",
     description="Ultimate Multi-Platform Executable Discovery and Management System",
     long_description=long_description,
